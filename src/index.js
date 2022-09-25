@@ -1,17 +1,39 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import React, { useState } from 'react';
+import ReactDOM from 'react-dom';
+import Typography from '@material-ui/core/Typography';
+import TodoForm from './TodoForm';
+import TodoList from './TodoList';
+import './styles.css';
+import { useLocalStorage } from "./useLocalStorage";
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
+const App = () => {
+  const [todos, setTodos] = useLocalStorage([]);
+
+  return (
+    <div className="App">
+      <Typography component="h1" variant="h2">
+        Todos
+      </Typography>
+      <TodoForm
+          saveTodo={todoText => {
+          const trimmedText = todoText.trim();
+          if (trimmedText.length > 0) {
+            setTodos([...todos, trimmedText]);
+          }
+          localStorage.setItem(trimmedText, trimmedText);
+        }}
+     />
+      <TodoList todos={todos}
+        deleteTodo={todoIndex => {
+          const newTodos = todos.filter((el, index) => index !== todoIndex);
+          setTodos(newTodos);
+          localStorage.removeItem(todos[todoIndex])
+        }}/>
+    </div>
+  );
+};
+
+
+const rootElement = document.getElementById('root');
+ReactDOM.render(<App />, rootElement);
